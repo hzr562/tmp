@@ -50,7 +50,7 @@ do
        if [[ i -ge 7 ]];
        then
           echo "发版失败，详细到/opt/rzg-ems/rzg-ems-parent/nohup.out 查看启动日志"
-          exit
+          exit 1
        fi
        
 done
