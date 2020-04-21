@@ -13,5 +13,5 @@ if [ -f /usr/share/nginx/html/dist.zip ]; then
 
 
 else
-    echo "文件不存在
+    echo "文件不存在"
 fi
