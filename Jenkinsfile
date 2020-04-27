@@ -7,6 +7,13 @@ pipeline {
 
     }
 
+
+    triggers {
+
+        pollSCM('H/1 * * * *')  //每分钟判断一次代码仓库是否更新
+
+    }
+
     options{
         retry(1) 
         buildDiscarder(logRotator(numToKeepStr: '10'))
@@ -84,7 +91,7 @@ pipeline {
             dir ( "${env.WORKSPACE}/rzg-ems-frontend/" ) {
 
                 sh '''
-                      yes 2>/dev/null | sudo cp -rf dist/*   /usr/share/nginx/html
+                      yes 2>/dev/null | sudo cp -rf dist/*   /usr/share/nginx/html2
                 '''
             }
 
