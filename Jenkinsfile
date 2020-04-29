@@ -4,15 +4,12 @@ pipeline {
     environment {
         rzg_ems_frontend_git = 'git@172.17.34.3:rzg-projects/ems/web/rzg-ems-frontend.git' 
         rzg_ems_gitid = '9f36fcfc-702f-4495-a6e3-6f9e0d8f813e'  
-
     }
 
+    // triggers {
 
-    triggers {
-
-        pollSCM('H/1 * * * *')  //每分钟判断一次代码仓库是否更新
-
-    }
+    //     pollSCM('H/1 * * * *')  //每分钟判断一次代码仓库是否更新
+    // }
 
     options{
         retry(1) 
@@ -25,9 +22,6 @@ pipeline {
 
   }
     stages {
-
-
-      
         stage('清理旧构建') {
   
             steps {
@@ -44,11 +38,9 @@ pipeline {
             }
         }
        
-
-
-
-
         stage('更新依赖') {
+
+
 
             steps {
 
@@ -58,6 +50,8 @@ pipeline {
                 npm config set disturl https://mirrors.huaweicloud.com/nodejs
                 npm config set sass_binary_site https://mirrors.huaweicloud.com/node-sass
                 npm install --registry=https://mirrors.huaweicloud.com/repository/npm/
+                yes 2>/dev/null | sudo cp -rf changedModule/element-ui.common.js   node_modules/element-ui/
+                yes 2>/dev/null | sudo cp -rf changedModule/screenfull.js   node_modules/screenfull/dist/
                 '''
             }
 
@@ -71,18 +65,13 @@ pipeline {
             dir ( "${env.WORKSPACE}/rzg-ems-frontend/" ) {
 
                 sh '''
-                    npm run prod
+                    npm run qa
                 '''
             }
 
         }
         }
-        
-
-
-
-
-
+    
 
         stage('更新到开发前端') {
 
@@ -91,16 +80,12 @@ pipeline {
             dir ( "${env.WORKSPACE}/rzg-ems-frontend/" ) {
 
                 sh '''
-                      yes 2>/dev/null | sudo cp -rf dist/*   /usr/share/nginx/html2
+                      yes 2>/dev/null | sudo cp -rf dist/*   /usr/share/nginx/html
                 '''
             }
 
         }
         }
-
-
-
-
 
     }
 
