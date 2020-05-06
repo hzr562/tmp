@@ -1,0 +1,93 @@
+pipeline {
+    agent any
+
+    environment {
+        ems2_frontend_git = 'git@gitlab.com:xunyijia/projects/ems-group/ems2-frontend.git' 
+        ems2_gitid = '7857c0ed-41d9-4de9-91bb-7db19c6da85d'  
+    }
+
+    // triggers {
+
+    //     pollSCM('H/1 * * * *')  //每分钟判断一次代码仓库是否更新
+    // }
+
+    options{
+        retry(1) 
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 2, unit: 'HOURS') 
+    }
+//     parameters {
+//     choice(name: 'path_ems2', choices: '/usr/share/nginx/html\n/usr/share/nginx/html_energy\n/opt/test', description: '前端目录地址')
+//     choice(name: 'host', choices: '172.18.20.76', description: '选择需要部署的主机')
+
+//   }
+    stages {
+        stage('清理旧构建') {
+  
+            steps {
+                sh 'printenv'
+                cleanWs() 
+
+            }
+        }
+
+        stage('拉取最新前端代码') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: "*/dev"]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${ems2_gitid}", url: "${ems2_frontend_git}"]]])
+
+            }
+        }
+       
+        stage('更新依赖') {
+
+
+            steps {
+
+            dir ( "${env.WORKSPACE}" ) {
+
+                sh '''
+                npm config set disturl https://mirrors.huaweicloud.com/nodejs
+                npm config set sass_binary_site https://mirrors.huaweicloud.com/node-sass
+                npm install --registry=https://mirrors.huaweicloud.com/repository/npm/
+                '''
+            }
+
+        }
+        }
+
+        stage('开始编译') {
+
+            steps {
+
+            dir ( "${env.WORKSPACE}" ) {
+
+                sh '''
+                    npm run prod
+                '''
+            }
+
+        }
+        }
+    
+
+        stage('更新到68前端') {
+
+            steps {
+
+            dir ( "${env.WORKSPACE}" ) {
+
+                sh '''
+                    ansible 68 -m copy -a "src=${WORKSPACE}/dist/   dest=/usr/local/nginx/html  owner=root group=root  mode=755 force=yes"
+                '''
+            }
+
+        }
+        }
+
+    }
+
+
+
+
+}
+
