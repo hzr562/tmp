@@ -1,0 +1,72 @@
+pipeline 
+    agent any
+
+    stages {
+
+
+        stage('更新依赖') {
+
+
+
+            steps {
+
+
+
+                sh '''
+                     df -h
+                '''
+
+
+        }
+        }
+
+    
+    
+
+        stage('回滚') {
+                       options {
+                timeout(time: 1, unit: 'MINUTES')   //一分钟不输入就断开
+            }
+            input {
+            
+            message '是否执行回滚任务'
+            ok '是'
+            parameters {
+                choice choices: ['开发', '测试'], description: '', name: '回滚环境'
+            }
+            }
+
+            steps {
+                echo "Hello, nice to meet you."
+            }
+
+
+        }
+        
+
+        stage('更新依赖2') {
+
+
+
+            steps {
+
+
+
+                sh '''
+                     df -h
+                '''
+
+
+        }
+        }
+
+
+
+
+    }
+
+}
+
+
+
+
