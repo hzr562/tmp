@@ -9,11 +9,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-
-
-
-
 cd $npm_compile_path
 npm install --registry=https://mirrors.huaweicloud.com/repository/npm/
 if [ $? -ne 0 ]; then
@@ -27,20 +22,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
 echo "########################"
-echo  "     正在备份前端文件。。。。。。     "
+echo "     正在备份前端文件。。。。。。     "
 echo "########################"
 mkdir -p /u01/htmlbak/$Backup_time
-\cp -rf  /usr/share/nginx/html  /u01/htmlbak/$Backup_time
+\cp -rf /usr/share/nginx/html /u01/htmlbak/$Backup_time
 
 echo "########################"
-echo  "     正在更新前端。。。。。。。     "
+echo "     正在更新前端。。。。。。。     "
 echo "########################"
-\cp -rf  dist/*    /usr/share/nginx/html
+\cp -rf dist/* /usr/share/nginx/html
 if [ $? -ne 0 ]; then
     echo "更新失败"
     exit 1
-else 
+else
     echo "更新成功"
 fi
