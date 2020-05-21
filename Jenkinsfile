@@ -1,4 +1,4 @@
-pipeline {
+pipeline { //日照港开发环境前端
     agent any
 
     environment {

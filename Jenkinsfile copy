@@ -1,4 +1,5 @@
-pipeline 
+@Library('hzrlibraries@master') _
+pipeline{  //测试功能
     agent any
 
     stages {
@@ -37,7 +38,7 @@ pipeline
             }
 
             steps {
-                echo "Hello, nice to meet you."
+                hzr(回滚环境)
             }
 
 
@@ -61,12 +62,17 @@ pipeline
         }
 
 
+        // stage('Even Stage') {
+        //   steps {
+        //     hzr('')
+        //   }
+        // }
+
+
+        
+
 
 
     }
 
 }
-
-
-
-
