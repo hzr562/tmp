@@ -1,4 +1,5 @@
-pipeline { //日照港开发环境前端
+pipeline {
+    //日照港开发环境
     agent any
 
     environment {
@@ -12,7 +13,7 @@ pipeline { //日照港开发环境前端
     // }
 
     options{
-        retry(1) 
+        retry(2) 
         buildDiscarder(logRotator(numToKeepStr: '10'))
         timeout(time: 2, unit: 'HOURS') 
     }
