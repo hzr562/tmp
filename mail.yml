@@ -1,0 +1,19 @@
+- hosts: "test1"
+  remote_user: vagrant
+  #gather_facts: False
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: port
+    wait_for:
+      host: 192.168.0.68
+      port: "{{ item }}"
+      state: started
+      timeout: 10
+      delay: 5 #每10秒检查一次
+    with_items:
+      - 80
+      - 8087
+      - 8021
+      - 8011
