@@ -1,0 +1,31 @@
+---
+
+
+
+    
+- name: copy程序包
+  copy:
+    src: /opt/rzg-update/rzg-ems/rzg-ems-parent/target/rzg-ems-api-2.0.0-SNAPSHOT.jar
+    dest: /u01/rzg-ems
+    force: yes
+
+
+
+
+- name: 重启项目
+  systemd:
+    name: rzg-ems.service
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+
+
+
+- name: 每10秒检查7060端口
+  wait_for:
+    host: 172.17.6.12
+    port: 7060
+    state: started
+    timeout: 80
+    delay: 10 #每10秒检查一次
