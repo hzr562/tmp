@@ -1,0 +1,46 @@
+  818  yum -y install pcre*
+  825  yum -y install libxml2 libxml2-dev
+  826  yum -y install libxslt-devel
+  829  yum -y install pcre pcre-devel
+  830  yum -y install gcc-c++ autoconf automake
+  832  yum -y install gd-devel
+  834  yum -y install perl-devel perl-ExtUtils-Embed
+
+
+1.确认你已经安装在用的nginx信息
+
+nginx -V
+
+
+2.下载和此版本相同的nginx源码包并解压
+
+wget http://nginx.org/download/nginx-1.10.3.tar.gz
+ 
+tar -xvzf nginx-1.10.3.tar.gz
+3.更新一下依赖相关包
+
+yum -y install pcre*
+4.这里以增加 nginx-rtmp-moudle为例，下载你要增加的模块
+
+wget https://github.com/arut/nginx-rtmp-module/archive/v1.1.10.tar.gz
+ 
+mv v1.1.10.tar.gz nginx-rtmp-1.1.10.tar.gz
+tar -zxvf nginx-rtmp-1.1.10.tar.gz
+5.下面开始进入正题
+
+#停掉nginx服务
+service nginx stop
+#进入解压的nginx-1.10.3目录
+cd nginx-1.10.3
+#编译./configure 后面加上 第1步nginx -V查看到的所有配置参数,后面加上你要加的模块配置
+./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx ...（太长我省略了） --add-module=/root/nginx-rtmp-module-1.1.10
+make && make install  
+验证新nginx是否可用验证编译后的nginx是否可以使用已有的配置
+./objs/nginx -t
+使用新nginx
+备份 cp /usr/sbin/nginx /usr/sbin/nginx-bak
+替换 cp ./objs/nginx /usr/sbin/nginx
+ 
+ok了,重启nginx 
+service nginx start
+祝你成功！
