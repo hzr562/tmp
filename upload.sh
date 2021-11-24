@@ -12,6 +12,3 @@ if [ $? -ne 0 ]; then
 else
    echo "上传成功"
 fi
-
-
-##测试上传
