@@ -1,8 +1,0 @@
-- hosts: y12
-  remote_user: root
-  #gather_facts: False
-  become: yes
-  become_user: root
-  become_method: sudo
-  roles:
-    - rzg-role
