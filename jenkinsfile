@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    options {
+        retry(2)  //失败重新试
+        buildDiscarder(logRotator(numToKeepStr: '15')) //保留构建历史次数
+        timeout(time: 1, unit: 'HOURS') //超时2小时
+        disableConcurrentBuilds()
+    }
+    parameters {
+        string (defaultValue: 'git@gitlab.com:xunyijia/projects/ems3/ems3.git', description: 'git地址', name: 'git_url')
+        string (defaultValue: 'dev', description: '代码分支', name: 'git_branch')
+        string (defaultValue: 'mvn clean -X install -U -Dmaven.test.skip=true', description: '编译命令', name: 'ems_maven')
+
+    }
+
+        environment {
+        ems2_gitid = '7857c0ed-41d9-4de9-91bb-7db19c6da85d'   //项目git私钥注册的ID  到jenkins > 凭据>系统>全局凭据
+        }
+    stages {
+        stage('清理旧构建') {
+            steps {
+                sh 'printenv'
+                cleanWs() //清理目录
+            }
+        }
+
+        stage('拉取项目代码') {
+            steps {
+                deleteDir()  //清理目录
+                checkout(
+                    [$class: 'GitSCM',
+                    branches: [[name: "${git_branch}"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs:
+
+                    [[credentialsId: "${ems2_gitid}", url: "${git_url}"]]])
+            }
+        }
+
+        stage('编译') {
+            steps {
+                echo 'Building'
+                sh """${ems_maven}"""
+            }
+        }
+        stage('归档jar,用于回滚') {
+            steps {
+                archiveArtifacts artifacts: '**', followSymlinks: true, onlyIfSuccessful: true
+            }
+        }
+    }
+}
