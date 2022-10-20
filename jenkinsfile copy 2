@@ -1,0 +1,18 @@
+pipeline {
+agent any
+stages {
+stage("test") {
+steps {
+git credentialsId: "凭据id", url:“http://git.name:git.password@git地址 "
+script{
+def GIT_TAG = new Date().format(“yyyyMMddHHmmss”);
+sh """
+git config user.email “your.email”
+git config user.name “your.name”
+git tag -a -m “${GIT_TAG}” ${GIT_TAG}
+git push origin --tags
+"""
+}
+}
+}
+}

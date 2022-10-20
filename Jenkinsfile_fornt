@@ -1,0 +1,17 @@
+#!groovy
+@Library('hzrlibraries') _
+
+def map = [:]
+
+map.put('ems2_frontend_git', 'gitlab.com:xunyijia/projects/ems3/ems3-frontend.git')
+map.put('ems2_gitid', '25b6de26-d3c1-4890-83ce-1cbd64f662bd')
+//项目代码
+//项目git私钥注册的ID  到jenkins > 凭据>系统>全局凭据
+
+map.put('host', 'test1\ntest2')
+//部署机器
+map.put('git_branch', 'main\nmaster')
+//项目分支
+map.put('File_Path', '/usr/share/nginx/ems3/')
+
+pipelineLoad2(map)

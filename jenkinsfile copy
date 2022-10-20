@@ -11,6 +11,7 @@ pipeline {
         string (defaultValue: 'git@gitlab.com:xunyijia/projects/ems3/ems3.git', description: 'git地址', name: 'git_url')
         string (defaultValue: 'dev', description: '代码分支', name: 'git_branch')
         string (defaultValue: 'mvn clean -X install -U -Dmaven.test.skip=true', description: '编译命令', name: 'ems_maven')
+        string (defaultValue: '', description: '发版tag', name: 'jenkins_tag')
 
     }
 
@@ -51,5 +52,18 @@ pipeline {
                 archiveArtifacts artifacts: '**', followSymlinks: true, onlyIfSuccessful: true
             }
         }
+
+        stage("打tag") {
+        steps {
+        script{
+        def GIT_TAG = new Date().format("MM_dd_HH")
+        sh """
+        git tag -a -m "${GIT_TAG}_${jenkins_tag}" ${GIT_TAG}_${jenkins_tag}
+        git push origin --tags
+        """
+        }
+        }
+        }
+
     }
 }
