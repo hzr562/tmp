@@ -10,7 +10,7 @@ map.put('ems2_gitid', '25b6de26-d3c1-4890-83ce-1cbd64f662bd')
 
 map.put('host', 'test1\ntest2')
 //部署机器
-map.put('GIT_BRANCH', 'test\nmaster')
+map.put('GIT_EMS_BRANCH', 'test\nmaster')
 //项目分支
 map.put('File_Path', '/usr/share/nginx/ems3/')
 
