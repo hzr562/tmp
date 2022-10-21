@@ -8,6 +8,9 @@ map.put('ems2_gitid', '25b6de26-d3c1-4890-83ce-1cbd64f662bd')
 //项目代码
 //项目git私钥注册的ID  到jenkins > 凭据>系统>全局凭据
 
+map.put('YUMWEI_GIT', 'git@github.com:hzr562/yumwei.git')
+map.put('YUMWEI_GIT_ID', '334b77c5-6fae-495a-8f41-7b3edd99d2ea')
+
 map.put('host', 'test1\ntest2')
 //部署机器
 map.put('GIT_EMS_BRANCH', 'test\nmaster')
