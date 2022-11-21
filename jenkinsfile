@@ -1,55 +1,94 @@
 pipeline {
-    agent any
+    agent  any
+
+    environment {
+        ems2_frontend_git = 'git@gitlab.com:xunyijia/projects/env-group/frontend-group/env-frontend.git'
+        ems2_gitid = '7857c0ed-41d9-4de9-91bb-7db19c6da85d'
+    }
+
+
 
     options {
-        retry(2)  //失败重新试
-        buildDiscarder(logRotator(numToKeepStr: '199')) //保留构建历史次数
-        timeout(time: 1, unit: 'HOURS') //超时2小时
+        retry(1)
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timeout(time: 1, unit: 'HOURS')
         disableConcurrentBuilds()
     }
-    parameters {
-        string (defaultValue: 'git@gitlab.com:xunyijia/projects/ems3/ems3.git', description: 'git地址', name: 'git_url')
-        string (defaultValue: 'dev', description: '代码分支', name: 'git_branch')
-        string (defaultValue: 'mvn clean -X install -U -Dmaven.test.skip=true', description: '编译命令', name: 'ems_maven')
 
+    parameters {
+        //choice(name: 'version', choices: '2.0.0\n3.0.0', description: '是否拉取项目代码')
+        choice(name: 'host', choices: 'test211', description: '选择需要部署的主机')
+        choice(name: 'git_branch', choices: 'test\ndev\nmaster', description: '选择项目分支')
     }
 
-        environment {
-        ems2_gitid = '7857c0ed-41d9-4de9-91bb-7db19c6da85d'   //项目git私钥注册的ID  到jenkins > 凭据>系统>全局凭据
-        }
     stages {
         stage('清理旧构建') {
             steps {
                 sh 'printenv'
-                cleanWs() //清理目录
+                cleanWs()
             }
         }
 
-        stage('拉取项目代码') {
-            steps {
-                deleteDir()  //清理目录
-                checkout(
-                    [$class: 'GitSCM',
-                    branches: [[name: "${git_branch}"]],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'CleanBeforeCheckout']],
-                    submoduleCfg: [],
-                    userRemoteConfigs:
+        // stage('cp更新') {
+        //     steps {
+        //         dir ( "${env.WORKSPACE}" ) {
+        //             sh '''
+        //          cp -pr /opt/env-frontend/*  ./
+        //         '''
+        //         }
+        //     }
+        // }
 
-                    [[credentialsId: "${ems2_gitid}", url: "${git_url}"]]])
+        stage('更新代码') {
+            steps {
+                dir ( "${env.WORKSPACE}" ) {
+                    sh """
+              sh  /opt/env-frontend/checkout.sh
+                """
+                }
             }
         }
 
-        stage('编译') {
+        stage('更新依赖') {
             steps {
-                echo 'Building'
-                sh """${ems_maven}"""
+                dir ( "${env.WORKSPACE}" ) {
+                    sh '''
+                npm install --registry=https://registry.npm.taobao.org
+                '''
+                }
             }
         }
-        stage('归档jar,用于回滚') {
+
+        stage('开始编译') {
             steps {
-                archiveArtifacts artifacts: '**', followSymlinks: true, onlyIfSuccessful: true
+                dir ( "${env.WORKSPACE}" ) {
+                    sh '''
+                    npm run prod
+                '''
+                }
             }
         }
+
+ 
+
+        stage('更新至测试68') {
+            steps {
+                dir ( "${env.WORKSPACE}" ) {
+                    sh '''
+                   ansible  ${host} -m synchronize -a "src=${WORKSPACE}/dist/   dest=/home/ep/ep-frontend  owner=no group=no  compress=yes"
+                   cd dist && zip -r dist.zip  ./
+                '''
+                }
+            }
+        }
+
+        stage('归档') {
+            steps {
+                dir ( "${env.WORKSPACE}" ) {
+                archiveArtifacts artifacts: 'dist/dist.zip', followSymlinks: false, onlyIfSuccessful: true
+                }
+            }
+        }
+
     }
 }
