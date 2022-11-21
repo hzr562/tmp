@@ -7,7 +7,7 @@
   834  yum -y install perl-devel perl-ExtUtils-Embed
 
 
-1.确认你已经安装在用的nginx信息2
+1.确认你已经安装在用的nginx信息23
 
 nginx -V
 
